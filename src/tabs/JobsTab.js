@@ -36,6 +36,15 @@ export default function JobsTab({
     )
     .sort((a,b) => a[1].priority - b[1].priority);
 
+  if (!selectedRole) {
+    return (
+      <div style={{ ...card, textAlign:'center', padding:'48px 24px' }}>
+        <h3 style={{ margin:'0 0 8px', fontSize:'18px', fontWeight:'600' }}>Add a job title to start searching</h3>
+        <p style={{ margin:0, fontSize:'14px', color:t.textSecondary }}>Type any role in the "Add job title…" box at the top — e.g. Data Analyst, UX Designer, Backend Engineer. Add as many as you like and switch between them.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ display:'flex', gap:'10px', marginBottom:'28px', flexWrap:'wrap' }}>

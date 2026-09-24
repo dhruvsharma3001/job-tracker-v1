@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Globe, Briefcase, Target, Lightbulb, MessageSquare, Sun, Moon, Sparkles, Bell, ClipboardList, Building2, FileSearch } from 'lucide-react';
-import { getProfile } from './storage';
+import { getProfile, getRoles, setRoles } from './storage';
+import RoleBar from './components/RoleBar';
 import Tracker from './components/Tracker';
 import Watchlist from './components/Watchlist';
 import ResumeMatch from './components/ResumeMatch';
@@ -15,13 +16,14 @@ import JobsTab from './tabs/JobsTab';
 import { themes } from './theme';
 import { getCardStyle, getBtnPrimaryStyle, getBtnSecondaryStyle, getTabButtonStyle, getBadgeStyle } from './styles';
 import { PLATFORMS } from './data/platforms';
-import { ROLES, FRESHNESS_OPTIONS, EXPERIENCE_LEVELS } from './data/roles';
+import { FRESHNESS_OPTIONS, EXPERIENCE_LEVELS } from './data/roles';
 
 export default function App() {
   const [theme, setTheme]         = useState('dark');
   const [activeTab, setActiveTab] = useState('home');
   const [selectedRegion, setSelectedRegion] = useState('india');
-  const [selectedRole, setSelectedRole]     = useState(ROLES[0].keyword);
+  const [roles, setRolesState] = useState(() => getRoles());
+  const [selectedRole, setSelectedRole]     = useState(() => getRoles()[0] || '');
   const [selectedLocation, setSelectedLocation] = useState('Bengaluru');
   const [selectedFreshness, setSelectedFreshness] = useState(FRESHNESS_OPTIONS[1]); // default: past 24h
   const [selectedExperience, setSelectedExperience] = useState(EXPERIENCE_LEVELS[0]); // default: any
@@ -32,6 +34,17 @@ export default function App() {
   const t = themes[theme];
 
   useEffect(() => { setIsLoaded(true); }, []);
+
+  const addRole = (role) => {
+    const existing = roles.find(r => r.toLowerCase() === role.toLowerCase());
+    if (!existing) { const next = [...roles, role]; setRolesState(next); setRoles(next); }
+    setSelectedRole(existing || role);
+  };
+  const removeRole = (role) => {
+    const next = roles.filter(r => r !== role);
+    setRolesState(next); setRoles(next);
+    if (selectedRole === role) setSelectedRole(next[0] || '');
+  };
 
   // Was staggering window.open() calls via setTimeout — that breaks the
   // "direct user click" requirement popup blockers enforce, so most/all of
@@ -54,9 +67,9 @@ export default function App() {
   const badge = getBadgeStyle;
 
   // Quick-launch URLs: built live from PLATFORMS so they always reflect the
-  // current role (Product Manager vs Senior PM) and city — the old version
-  // was a static list hardcoded to "Product Manager" regardless of toggle.
+  // current role and city.
   const getQuickLaunchUrls = (region, role, location, opts) => {
+    if (!role) return [];
     const wantsRegion = ([p]) =>
       region==='india'  ? (p.region==='india'  || p.region==='global') :
       region==='remote' ? (p.region==='remote' || p.region==='global') :
@@ -75,20 +88,16 @@ export default function App() {
 
       {/* NAV */}
       <nav style={{ position:'sticky', top:0, zIndex:1000, backdropFilter:t.glassEffect, WebkitBackdropFilter:t.glassEffect, background:theme==='dark'?'rgba(0,0,0,0.75)':'rgba(255,255,255,0.75)', borderBottom:`0.5px solid ${t.border}` }}>
-        <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', flexWrap:'wrap' }}>
           <button onClick={()=>setActiveTab('home')} style={{ display:'flex', alignItems:'center', gap:'14px', background:'none', border:'none', cursor:'pointer', padding:0, textAlign:'left' }}>
             <div style={{ width:'40px', height:'40px', borderRadius:'12px', background:t.gradient1, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', boxShadow:'0 4px 12px rgba(102,126,234,0.4)' }}>🎯</div>
             <div>
-              <h1 style={{ margin:0, fontSize:'19px', fontWeight:'600', letterSpacing:'-0.3px', color:t.text }}>PM Jobs Tracker</h1>
+              <h1 style={{ margin:0, fontSize:'19px', fontWeight:'600', letterSpacing:'-0.3px', color:t.text }}>Job Tracker</h1>
               <p style={{ margin:0, fontSize:'11px', color:t.textSecondary }}>28 platforms • updated daily</p>
             </div>
           </button>
-          <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-            <div style={{ display:'flex', gap:'6px', padding:'4px 8px', background:t.cardBg, border:`1px solid ${t.border}`, borderRadius:'12px' }}>
-              {ROLES.map(r => (
-                <button key={r.keyword} onClick={()=>setSelectedRole(r.keyword)} style={{ padding:'6px 12px', borderRadius:'8px', border:'none', background:selectedRole===r.keyword?t.accent:'transparent', color:selectedRole===r.keyword?'#fff':t.textSecondary, fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>{r.label}</button>
-              ))}
-            </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'12px', flexWrap:'wrap' }}>
+            <RoleBar t={t} roles={roles} selectedRole={selectedRole} onSelect={setSelectedRole} onAdd={addRole} onRemove={removeRole} />
             <button onClick={()=>setTheme(theme==='dark'?'light':'dark')} style={{ width:'40px', height:'40px', borderRadius:'50%', background:t.cardBg, border:`1px solid ${t.border}`, color:t.text, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
               {theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}
             </button>
@@ -189,7 +198,7 @@ export default function App() {
       </main>
 
       <footer style={{ borderTop:`1px solid ${t.border}`, padding:'20px', textAlign:'center', position:'relative', zIndex:10 }}>
-        <p style={{ fontSize:'12px', color:t.textSecondary, margin:0 }}>PM Jobs Tracker • 28 platforms • Built for Product Managers in India 🇮🇳</p>
+        <p style={{ fontSize:'12px', color:t.textSecondary, margin:0 }}>Job Tracker • 28 platforms • Search any role</p>
       </footer>
 
       <style>{`

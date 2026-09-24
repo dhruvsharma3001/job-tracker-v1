@@ -31,6 +31,7 @@ export default function HomeTab({
   const filterOpts = { freshness: selectedFreshness, experience: selectedExperience };
 
   const openAllIndia = () => {
+    if (!selectedRole) { setActiveTab('jobs'); return; }
     openMultiple(getQuickLaunchUrls('india', selectedRole, selectedLocation, filterOpts));
     setSelectedRegion('india');
     setActiveTab('jobs');
@@ -44,10 +45,10 @@ export default function HomeTab({
           <span style={{ fontSize:'13px', color:t.success, fontWeight:'600' }}>Live • 28 platforms connected</span>
         </div>
         <h1 style={{ fontSize:'clamp(44px,10vw,80px)', fontWeight:'700', letterSpacing:'-0.04em', lineHeight:'1.05', margin:'0 0 24px', color:t.text }}>
-          Find every PM job.<br/><span style={{ background:t.gradient3, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Apply first. Win.</span>
+          Find every job.<br/><span style={{ background:t.gradient3, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Apply first. Win.</span>
         </h1>
         <p style={{ fontSize:'20px', color:t.textSecondary, lineHeight:'1.6', maxWidth:'580px', margin:'0 auto 40px', fontWeight:'400' }}>
-          28 platforms • Application tracker • Company watchlist •<br/>Resume match. Everything to land your next PM role.
+          28 platforms • Application tracker • Company watchlist •<br/>Resume match. Everything to land your next role.
         </p>
         <div style={{ display:'flex', gap:'14px', justifyContent:'center', flexWrap:'wrap' }}>
           <button onClick={openAllIndia} style={btnPrimary}><Zap size={18}/>{isOpening?'Opening…':'Open All India Platforms'}<ArrowRight size={16}/></button>

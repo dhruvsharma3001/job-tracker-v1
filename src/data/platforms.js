@@ -1,6 +1,8 @@
 // The 26 job platforms. Each one's `getUrl(role, location, opts)` builds the
 // search URL for that specific site — every URL here was verified against
 // the real, live site during development, not guessed from docs.
+const slug = (r) => r.toLowerCase().trim().replace(/\s+/g,'-');
+
 export const PLATFORMS = {
   // India-first
   linkedin:     { name:'LinkedIn',       icon:'💼', color:'#0A66C2', region:'global', priority:1, badge:'🔥 Top',    getUrl:(r,l,o)=>{
@@ -41,23 +43,23 @@ export const PLATFORMS = {
     if (o?.region==='india') return `https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=${encodeURIComponent(r)}&locT=N&locId=115&sortBy=date_desc`;
     return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${encodeURIComponent(r)}&sortBy=date_desc`;
   }, description:'Reviews + salary + jobs' },
-  wellfound:    { name:'Wellfound',       icon:'😇', color:'#8B8BFF', region:'global', priority:13, badge:'Equity',getUrl:()=>`https://wellfound.com/role/product-manager`, description:'Startup equity-first (fka AngelList)' },
+  wellfound:    { name:'Wellfound',       icon:'😇', color:'#8B8BFF', region:'global', priority:13, badge:'Equity',getUrl:(r)=>`https://wellfound.com/role/${slug(r)}`, description:'Startup equity-first (fka AngelList)' },
   levelsfyi:    { name:'Levels.fyi',      icon:'📊', color:'#00D4AA', region:'global', priority:14,              getUrl:(r,l,o)=>{
     // Was hardcoded to /jobs/location/india unconditionally, even under Remote/International.
     return o?.region==='india' ? `https://www.levels.fyi/jobs/location/india` : `https://www.levels.fyi/jobs`;
   }, description:'Comp-transparent listings' },
   // Remote
-  remoteok:     { name:'RemoteOK',        icon:'🌍', color:'#00D4AA', region:'remote', priority:15,              getUrl:()=>'https://remoteok.com/remote-product-manager-jobs', description:'Remote-first PM jobs' },
-  weworkremotely:{ name:'WeWorkRemotely', icon:'🏠', color:'#2D3748', region:'remote', priority:16,              getUrl:()=>'https://weworkremotely.com/categories/remote-product-jobs', description:'Top remote board globally' },
+  remoteok:     { name:'RemoteOK',        icon:'🌍', color:'#00D4AA', region:'remote', priority:15,              getUrl:(r)=>`https://remoteok.com/remote-${slug(r)}-jobs`, description:'Remote-first jobs' },
+  weworkremotely:{ name:'WeWorkRemotely', icon:'🏠', color:'#2D3748', region:'remote', priority:16,              getUrl:(r)=>`https://weworkremotely.com/remote-jobs/search?term=${encodeURIComponent(r)}`, description:'Top remote board globally' },
   remoteco:     { name:'Remote.co',       icon:'🌐', color:'#3182CE', region:'remote', priority:17,              getUrl:()=>'https://remote.co/remote-jobs/product/', description:'Curated remote roles' },
   flexjobs:     { name:'FlexJobs',        icon:'🤸', color:'#6B46C1', region:'remote', priority:18,              getUrl:(r)=>`https://www.flexjobs.com/search?search=${encodeURIComponent(r)}`, description:'Vetted remote & flexible' },
   // US/UK/International
-  builtin:      { name:'Built In',        icon:'🏙️', color:'#0066FF', region:'us',     priority:19,              getUrl:()=>'https://builtin.com/jobs/product-management', description:'US tech hub jobs' },
+  builtin:      { name:'Built In',        icon:'🏙️', color:'#0066FF', region:'us',     priority:19,              getUrl:(r)=>`https://builtin.com/jobs?search=${encodeURIComponent(r)}`, description:'US tech hub jobs' },
   wttj:         { name:'Welcome to the Jungle', icon:'🌴', color:'#FFCF52', region:'global', priority:20, badge:'fka Otta', getUrl:(r)=>`https://www.welcometothejungle.com/en/jobs?query=${encodeURIComponent(r)}`, description:'Euro tech jobs — acquired Otta in 2024' },
   underdog:     { name:'Underdog.io',     icon:'🥷', color:'#1A1A2E', region:'us',     priority:21, badge:'Invite',getUrl:()=>'https://underdog.io/', description:'Apply once, many startups' },
-  phmind:       { name:'Mind the Product',icon:'🧠', color:'#E53E3E', region:'global', priority:22,              getUrl:()=>'https://www.mindtheproduct.com/jobs/', description:'PM-specific community board' },
-  naukrigulf:   { name:'NaukriGulf',      icon:'🕌', color:'#00A65A', region:'global', priority:23,              getUrl:(r)=>`https://www.naukrigulf.com/${r.toLowerCase().replace(/\s+/g,'-')}-jobs`, description:'UAE, Saudi & Gulf PM roles' },
-  y_combinator: { name:'YC Job Board',    icon:'🔶', color:'#FF6600', region:'global', priority:24, badge:'YC',   getUrl:()=>'https://www.ycombinator.com/jobs/role/product-manager', description:'YC-backed startup jobs' },
+  phmind:       { name:'Mind the Product',icon:'🧠', color:'#E53E3E', region:'global', priority:22,              getUrl:()=>'https://www.mindtheproduct.com/jobs/', description:'PM-only community board' },
+  naukrigulf:   { name:'NaukriGulf',      icon:'🕌', color:'#00A65A', region:'global', priority:23,              getUrl:(r)=>`https://www.naukrigulf.com/${r.toLowerCase().replace(/\s+/g,'-')}-jobs`, description:'UAE, Saudi & Gulf roles' },
+  y_combinator: { name:'YC Job Board',    icon:'🔶', color:'#FF6600', region:'global', priority:24, badge:'YC',   getUrl:()=>'https://www.ycombinator.com/jobs', description:'YC-backed startup jobs' },
   simplyhired:  { name:'SimplyHired',     icon:'🔎', color:'#3B88C3', region:'global', priority:25,              getUrl:(r,l,o)=>{
     // Was hardcoded to the .co.in domain + l=India even under Remote/International.
     if (o?.region==='india') return `https://www.simplyhired.co.in/search?q=${encodeURIComponent(r)}&l=${encodeURIComponent(l)}&sb=dd`;

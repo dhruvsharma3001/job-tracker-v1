@@ -119,3 +119,8 @@ export const timeAgo = (timestamp) => {
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 };
+
+// ─── Search roles (user-managed; the active one feeds every job-board URL) ──
+const ROLES_KEY = 'pmt_roles';
+export const getRoles = () => safeGet(ROLES_KEY, []);
+export const setRoles = (roles) => safeSet(ROLES_KEY, roles);

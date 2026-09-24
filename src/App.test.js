@@ -18,8 +18,8 @@ beforeEach(() => {
 
 test('renders the home page without crashing', () => {
   render(<App />);
-  expect(screen.getByText('PM Jobs Tracker')).toBeInTheDocument();
-  expect(screen.getByText(/Find every PM job/i)).toBeInTheDocument();
+  expect(screen.getByText('Job Tracker')).toBeInTheDocument();
+  expect(screen.getByText(/Find every job/i)).toBeInTheDocument();
 });
 
 test('Tracker: add an application, see it under Applied, move it to Interview', async () => {
@@ -228,4 +228,22 @@ test('Templates: saving a profile fills the [X] years / [domain] placeholders', 
   await user.click(screen.getByText(/Connection Request/i));
 
   expect(screen.getAllByText(/9 years in fintech/i).length).toBeGreaterThan(0);
+});
+
+test('Roles: add custom job titles, switch between them, persist them', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByText('All Jobs'));
+  expect(screen.getByText(/Add a job title to start searching/i)).toBeInTheDocument();
+
+  await user.type(screen.getByLabelText('Add job title'), 'Data Analyst{enter}');
+  await user.type(screen.getByLabelText('Add job title'), 'UX Designer{enter}');
+  expect(JSON.parse(localStorage.getItem('pmt_roles'))).toEqual(['Data Analyst', 'UX Designer']);
+  expect(screen.getByText('Naukri').closest('a').getAttribute('href')).toContain('ux-designer-jobs-in-');
+
+  await user.click(screen.getByText('Data Analyst'));
+  expect(screen.getByText('Naukri').closest('a').getAttribute('href')).toContain('data-analyst-jobs-in-');
+
+  await user.click(screen.getByLabelText('Remove Data Analyst'));
+  expect(JSON.parse(localStorage.getItem('pmt_roles'))).toEqual(['UX Designer']);
 });
